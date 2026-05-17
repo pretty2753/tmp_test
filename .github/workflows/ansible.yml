@@ -30,10 +30,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-          ##############################################
+          ###############################################
           bastion-ssh-key: ${{ secrets.BASTION_SSH_KEY }}           
           ansible-ssh-key: ${{ secrets.ANSIBLE_SSH_KEY }}            
-          ###############################################
+          ###############################################  
       - name: Run All Playbooks
         run: |
           cd ansible
