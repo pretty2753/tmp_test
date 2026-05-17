@@ -47,7 +47,20 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+      - name: Check if terraform changed
+        id: tf-check
+
+        run: |
+          if git diff HEAD~1 HEAD --name-only | grep -q "^terraform/"; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+          
       - uses: dorny/paths-filter@v4
+        if: steps.tf-check.outputs.skip == 'false'
         id: filter
         with:
           filters: |
@@ -71,6 +84,7 @@ jobs:
               - 'ansible/playbooks/nginx.yml'
 
     outputs:
+      skip: ${{ steps.tf-check.outputs.skip }} 
       bastion: ${{ steps.filter.outputs.bastion }}
       was: ${{ steps.filter.outputs.was }}
       db: ${{ steps.filter.outputs.db }}
@@ -83,7 +97,7 @@ jobs:
   # ================================
   bastion-setup:
     needs: detect
-    if: needs.detect.outputs.bastion == 'true'
+    if: needs.detect.outputs.skip == 'false' && needs.detect.outputs.bastion == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -101,7 +115,7 @@ jobs:
 
   was-setup:
     needs: detect
-    if: needs.detect.outputs.was == 'true'
+    if: needs.detect.outputs.skip == 'false' && needs.detect.outputs.was == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -119,7 +133,7 @@ jobs:
 
   db-setup:
     needs: detect
-    if: needs.detect.outputs.db == 'true'
+    if: needs.detect.outputs.skip == 'false' && needs.detect.outputs.db == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -137,7 +151,7 @@ jobs:
 
   nginx-setup:
     needs: detect
-    if: needs.detect.outputs.nginx == 'true'
+    if: needs.detect.outputs.skip == 'false' && needs.detect.outputs.nginx == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -155,7 +169,7 @@ jobs:
 
   bootstrap-setup:
     needs: detect
-    if: needs.detect.outputs.bootstrap == 'true'
+    if: needs.detect.outputs.skip == 'false' && needs.detect.outputs.bootstrap == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -172,7 +186,7 @@ jobs:
 
   bootstrap-adreamin-setup:
     needs: detect
-    if: needs.detect.outputs.bootstrap_adreamin == 'true'
+    if: needs.detect.outputs.skip == 'false' && needs.detect.outputs.bootstrap_adreamin == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
