@@ -23,7 +23,7 @@ jobs:
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5 
 
       - uses: ./.github/actions/setup-ansible                                         
         with:
@@ -58,7 +58,7 @@ jobs:
           else
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
-          
+
       - uses: dorny/paths-filter@v4
         if: steps.tf-check.outputs.skip == 'false'
         id: filter
